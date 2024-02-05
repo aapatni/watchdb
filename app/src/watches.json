@@ -1,0 +1,29 @@
+[
+    {
+      "Brand": "Brand Name",
+      "Model": "Model Name",
+      "Reference Number": "Ref123",
+      "Case Material": "Stainless Steel",
+      "Case Diameter": 40,
+      "Case Thickness": 10,
+      "Lug Width": 20,
+      "Lug-to-Lug": 48,
+      "Dial Color": "Black",
+      "Crystal Type": "Sapphire",
+      "Water Resistance": "100m",
+      "Movement": "Automatic",
+      "Caliber": "Caliber123",
+      "Movement Type": "Mechanical",
+      "Power Reserve": "48 Hours",
+      "Bracelet/Strap Material": "Leather",
+      "Clasp Type": "Buckle",
+      "Product Weight": "80g",
+      "Features": "Chronograph, Date Indicator",
+      "Price": 5000,
+      "Availability": "In Stock",
+      "Photo URL": "http://example.com/photo.jpg",
+      "Merchant Name": "Merchant Name",
+      "Product URL": "http://example.com/product"
+    }
+  ]
+  

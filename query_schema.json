@@ -1,0 +1,28 @@
+{
+    "Brand": "string",
+    "Model": "string",
+    "Reference Number": "string",
+    "Case Material": "string",
+    "Case Diameter": "number",
+    "Case Thickness": "number",
+    "Lug Width": "number",
+    "Lug-to-Lug": "number",
+    "Dial Color": "string",
+    "Crystal Type": "string",
+    "Water Resistance": "string",
+    "Movement": "string",
+    "Caliber": "string",
+    "Movement Type": "string",
+    "Power Reserve": "string",
+    "Bracelet/Strap Material": "string",
+    "Clasp Type": "string",
+    "Product Weight": "string",
+    "Features": "string",
+    "Price": "number",
+    "Availability": "string",
+    "Photo URL": "string",
+    "Merchant Name": "string",
+    "Product URL": "string"
+  }
+  
+  
