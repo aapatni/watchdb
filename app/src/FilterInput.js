@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Select, MenuItem, FormControl, InputLabel, Box, Input } from "@mui/material";
+import React, { useState, useEffect, useContext } from "react";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+  Input,
+} from "@mui/material";
+import { SharedDataContext } from "./SharedDataContext";
 
 function BrandDropdown({ supabase }) {
+  const { filterBrand, setFilterBrand } = useContext(SharedDataContext);
   const [brands, setBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
 
   useEffect(() => {
     async function fetchBrands() {
@@ -20,7 +28,7 @@ function BrandDropdown({ supabase }) {
   }, [supabase]);
 
   const handleChange = (event) => {
-    setSelectedBrand(event.target.value);
+    setFilterBrand(event.target.value || null);
   };
 
   return (
@@ -30,10 +38,13 @@ function BrandDropdown({ supabase }) {
         <Select
           labelId="brand-dropdown-label"
           id="brand-dropdown"
-          value={selectedBrand}
+          value={filterBrand || ""}
           label="Brand"
           onChange={handleChange}
         >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
           {brands.map((brand) => (
             <MenuItem key={brand} value={brand}>
               {brand}
@@ -46,15 +57,22 @@ function BrandDropdown({ supabase }) {
 }
 
 function SizeFilter({ supabase }) {
-  const [minSize, setMinSize] = useState("");
-  const [maxSize, setMaxSize] = useState("");
+  const { setFilterMinDiameter, setFilterMaxDiameter } =
+    useContext(SharedDataContext);
 
-  const handleMinSizeChange = (event) => {
-    setMinSize(event.target.value);
+  const [minDiameter, setMinDiameter] = useState("");
+  const [maxDiameter, setMaxDiameter] = useState("");
+
+  const handleMinChange = (event) => {
+    const value = event.target.value === "" ? null : event.target.value;
+    setFilterMinDiameter(value);
+    setMinDiameter(value);
   };
 
-  const handleMaxSizeChange = (event) => {
-    setMaxSize(event.target.value);
+  const handleMaxChange = (event) => {
+    const value = event.target.value === "" ? null : event.target.value;
+    setFilterMaxDiameter(value);
+    setMaxDiameter(value);
   };
 
   return (
@@ -63,8 +81,8 @@ function SizeFilter({ supabase }) {
         <InputLabel htmlFor="min-size">Min Size</InputLabel>
         <Select
           native
-          value={minSize}
-          onChange={handleMinSizeChange}
+          value={minDiameter || ""}
+          onChange={handleMinChange}
           inputProps={{
             name: "min-size",
             id: "min-size",
@@ -82,8 +100,8 @@ function SizeFilter({ supabase }) {
         <InputLabel htmlFor="max-size">Max Size</InputLabel>
         <Select
           native
-          value={maxSize}
-          onChange={handleMaxSizeChange}
+          value={maxDiameter || ""}
+          onChange={handleMaxChange}
           inputProps={{
             name: "max-size",
             id: "max-size",
@@ -102,21 +120,22 @@ function SizeFilter({ supabase }) {
 }
 
 function SearchBar({ setSearchTerm }) {
-    return (
-      <Box sx={{ minWidth: 120, mt: 2 }}>
-        <FormControl fullWidth>
-          <InputLabel htmlFor="search-bar">Search</InputLabel>
-          <Input
-            id="search-bar"
-            aria-describedby="search-bar-text"
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
-        </FormControl>
-      </Box>
-    );
-  }
+  const { setFilterSearchTerm } = useContext(SharedDataContext);
+  return (
+    <Box sx={{ minWidth: 120, mt: 2 }}>
+      <FormControl fullWidth>
+        <InputLabel htmlFor="search-bar">Search</InputLabel>
+        <Input
+          id="search-bar"
+          aria-describedby="search-bar-text"
+          onChange={(event) => setFilterSearchTerm(event.target.value || null)}
+        />
+      </FormControl>
+    </Box>
+  );
+}
 
-function SearchFilter({ supabase, handleDataFromFilter}) {
+function FilterInput({ supabase }) {
   return (
     <Box sx={{ display: "flex", gap: 2 }}>
       <BrandDropdown supabase={supabase} />
@@ -126,4 +145,4 @@ function SearchFilter({ supabase, handleDataFromFilter}) {
   );
 }
 
-export default SearchFilter;
+export default FilterInput;

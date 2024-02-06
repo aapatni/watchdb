@@ -1,44 +1,30 @@
 import "./App.css";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { supabase } from "./supabaseClient";
 import NavBar from "./NavBar";
-import SearchFilter from "./SearchFilter";
-import WatchGrid from "./WatchGrid"
+import FilterInput from "./FilterInput";
+import WatchGrid from "./WatchGrid";
+import { createRoot } from 'react-dom/client';
+import { DataProvider } from "./SharedDataContext";
 
 
 function App() {
-  const [searchParameters, setSearchParameters] = useState("");
-  
-  const handleDataFromFilter = (data) => {
-    setSearchParameters(data);
-  }
-
-  const [watches, setWatches] = useState([]);
-
-  useEffect(() => {
-    const fetchWatches = async () => {
-      let { data: watches, error } = await supabase.from("watches").select("*");
-
-      if (error) console.log("error", error);
-      else if (watches.length === 0) console.log("No watches found");
-      else console.log("num watches: ", watches.length);
-      setWatches(watches);
-    };
-
-    fetchWatches();
-  }, []);
-
   return (
-    <div className="App">
-      <NavBar /> {}
-      <div>
-        <SearchFilter supabase={supabase} handleDataFromFilter={handleDataFromFilter} />
+    <DataProvider>
+      <div className="App">
+        <NavBar /> {}
+        <div>
+          <FilterInput supabase={supabase} />
+        </div>
+        <div className="watch-cards-container">
+          <WatchGrid supabase={supabase} />
+        </div>
       </div>
-      <div className="watch-cards-container">
-        <WatchGrid watches={watches}/>
-      </div>
-    </div>
+    </DataProvider>
   );
 }
 
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
 export default App;
