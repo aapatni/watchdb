@@ -1,76 +1,73 @@
-.App {
-  text-align: center;
+/* Reset some styles for a cleaner look */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background-color: #f0f0f0; /* Light grey background */
+  font-family: Arial, sans-serif; /* Modern font choice */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Container for the grid */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Creates a responsive grid */
+  gap: 16px; /* Space between cards */
+  padding: 16px; /* Padding around the grid */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Style for each card */
+.grid-item {
+  background-color: #ffffff; /* White background for the cards */
+  border: 1px solid #ddd; /* Light border for the cards */
+  border-radius: 4px; /* Rounded corners */
+  overflow: hidden; /* Ensures content doesn't spill out */
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* Space elements out */
+}
+
+/* Style for the image within the card */
+.grid-item img {
+  width: 100%;
+  display: block; /* Remove any extra space below the image */
+}
+
+/* Style for the card content */
+.grid-item-content {
+  padding: 8px; /* Padding inside the card */
+}
+
+/* Style for the title and other text */
+.grid-item-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 4px; /* Space below the title */
+}
+
+.grid-item-text {
+  font-size: 0.875rem;
+  color: #666; /* Dark grey for the text */
+}
+
+/* Style for the interaction buttons like likes */
+.grid-item-actions {
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.grid-item-actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.grid-item-actions button:focus {
+  outline: none;
 }
 
-.watch {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 20px;
-  }
-
-  .watch-cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    /* Add more styling as needed */
-  }
-  
-  .watch-card {
-    cursor: pointer;
-    /* Add more styling as needed */
-  }
-  
-  .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    /* Add more styling as needed */
-  }
-  
+/* Add any additional styles for buttons, text, and other elements as needed */
