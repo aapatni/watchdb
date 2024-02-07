@@ -1,0 +1,34 @@
+{
+    "type": "object",
+    "properties": {
+        "Brand": {"type": "string"},
+        "Model": {"type": "string"},
+        "Reference Number": {"type": "string"},
+        "Case Material": {"type": "string"},
+        "Case Diameter": {"type": "number"},
+        "Case Thickness": {"type": "number"},
+        "Lug Width": {"type": "number"},
+        "Lug-to-Lug": {"type": "number"},
+        "Dial Color": {"type": "string"},
+        "Crystal Type": {"type": "string"},
+        "Water Resistance": {"type": "string"},
+        "Movement": {"type": "string"},
+        "Caliber": {"type": "string"},
+        "Movement Type": {"type": "string"},
+        "Power Reserve": {"type": "string"},
+        "Bracelet/Strap Material": {"type": "string"},
+        "Clasp Type": {"type": "string"},
+        "Product Weight": {"type": "string"},
+        "Features": {"type": "string"},
+        "Price": {"type": "number"},
+        "Availability": {"type": "string"},
+        "Photo URL": {"type": "string"},
+        "Merchant Name": {"type": "string"},
+        "Product URL": {"type": "string"}
+    },
+    "required": [
+        "Brand",
+        "Model"
+    ],
+    "additionalProperties": false
+}
