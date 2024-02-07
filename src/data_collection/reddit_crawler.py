@@ -4,6 +4,7 @@ import json
 import time
 import argparse
 
+from postgrest.exceptions import APIError
 from supabase import create_client, Client
 
 def main(time_filter, post_limit, comments_limit):
@@ -24,7 +25,6 @@ def main(time_filter, post_limit, comments_limit):
                         client_secret=client_secret,
                         user_agent=user_agent)
 
-    # The subreddit you want to scrape
     subreddit = reddit.subreddit('watchexchange')
 
     # Fetch the top posts from the subreddit
@@ -44,13 +44,12 @@ def main(time_filter, post_limit, comments_limit):
         }
         
         try:
-            # Attempt to insert post_data into your Supabase table
             data_insert_response = supabase.table('rqueue').insert(post_data).execute()
-        except Exception as e:
-            if 'duplicate key value violates unique constraint "rqueue_pkey"' in str(e):
-                print(f"Skipping insertion for post_id={post_data['post_id']} as it already exists.")
+        except APIError as api_error:
+            if api_error.code == '23505':
+                print(f"Duplicate entry ({post.id}), skipping")
             else:
-                raise
+                raise api_error
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reddit WatchExchange Crawler")
