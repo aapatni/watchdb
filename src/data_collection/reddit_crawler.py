@@ -7,17 +7,19 @@ import argparse
 from supabase import create_client, Client
 
 def main(time_filter, post_limit, comments_limit):
-    # Supabase setup
+    # Supabase credentials
     url: str = os.environ.get('SUPABASE_WATCHDB_URL')
     key: str = os.environ.get('SUPABASE_WATCHDB_SERVICE_ROLE_KEY')
-    supabase: Client = create_client(url, key)
 
     # Reddit API Credentials
     client_id = os.environ.get('REDDIT_APP_ID')
     client_secret = os.environ.get('REDDIT_APP_KEY')
-    user_agent = 'User-Agent:chrono-codex-server:v1 (by /u/ChronoCrawler)'
 
-    # Initialize PRAW with your credentials
+    # Supabase setup
+    supabase: Client = create_client(url, key)
+    
+    # Initialize PRAW with credentials
+    user_agent = 'User-Agent:chrono-codex-server:v1 (by /u/ChronoCrawler)'
     reddit = praw.Reddit(client_id=client_id,
                         client_secret=client_secret,
                         user_agent=user_agent)
@@ -51,7 +53,7 @@ def main(time_filter, post_limit, comments_limit):
                 raise
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Reddit Crawler for Subreddit Posts")
+    parser = argparse.ArgumentParser(description="Reddit WatchExchange Crawler")
     parser.add_argument("--time_filter", help="Time filter for posts", default="hour")
     parser.add_argument("--post_limit", help="Limit of posts to fetch", type=int, default=10)
     parser.add_argument("--comments_limit", help="Limit of comments to fetch for each post", type=int, default=25)

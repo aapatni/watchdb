@@ -6,6 +6,10 @@ from supabase import create_client, Client
 from schema_validator import validate_schema
 
 def process_queue(supabase_url, supabase_key, openai_key):
+    url: str = os.environ.get('SUPABASE_WATCHDB_URL')
+    key: str = os.environ.get('SUPABASE_WATCHDB_SERVICE_ROLE_KEY')
+    openai_key = os.environ.get('OPENAI_API_CHRONO_KEY')
+
     # Supabase setup
     supabase: Client = create_client(supabase_url, supabase_key)
 
@@ -14,7 +18,7 @@ def process_queue(supabase_url, supabase_key, openai_key):
         api_key=openai_key
     )
 
-    with open('query_schema.json') as f:
+    with open('src/data_collection/query_schema.json') as f:
         output_schema_str = f.read()
 
     # Fetch data from Supabase queue
@@ -56,9 +60,9 @@ def process_queue(supabase_url, supabase_key, openai_key):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process queue items and format them using OpenAI")
-    parser.add_argument("--supabase_url", required=True, help="Supabase project URL")
-    parser.add_argument("--supabase_key", required=True, help="Supabase service role key")
-    parser.add_argument("--openai_key", required=True, help="OpenAI API key")
+    # parser.add_argument("--supabase_url", required=True, help="Supabase project URL")
+    # parser.add_argument("--supabase_key", required=True, help="Supabase service role key")
+    # parser.add_argument("--openai_key", required=True, help="OpenAI API key")
 
     args = parser.parse_args()
 

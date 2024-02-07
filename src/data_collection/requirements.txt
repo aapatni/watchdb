@@ -1,0 +1,4 @@
+praw
+supabase
+openai
+schema-validator

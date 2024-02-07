@@ -36,7 +36,7 @@ def validate_schema(data: dict):
     # filtering out incorrect data.
 
     # Load the schema
-    with open('watch_schema.json', 'r') as file:
+    with open('src/data_collection/watch_schema.json', 'r') as file:
         schema = json.load(file)
 
     json_data = filter_invalid_entries(data, schema)
