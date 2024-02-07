@@ -1,6 +1,7 @@
+import json
+
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-
 
 def filter_invalid_entries(data, schema):
     """
@@ -15,7 +16,6 @@ def filter_invalid_entries(data, schema):
         expected_type = schema.get("properties", {}).get(key, {}).get("type", None)
         if expected_type:
             if expected_type == "number" and value is not None:
-                print(key,value)
                 try:
                     converted_value = int(value)
                 except ValueError:

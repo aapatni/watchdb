@@ -30,7 +30,7 @@ jobs:
         REDDIT_APP_KEY: ${{ secrets.REDDIT_APP_KEY }}
         SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
         SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
-      run: python src/data_collection/reddit_crawler.py
+      run: python src/data_collection/reddit_crawler.py --post_limit 15
     
     - name: Run the watchdb populator to
       env:
@@ -38,4 +38,4 @@ jobs:
           REDDIT_APP_KEY: ${{ secrets.REDDIT_APP_KEY }}
           SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
           SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
-      run: python src/data_collection/watchdb_populator.py
+      run: python src/data_collection/watchdb_populator.py --num_requests 25
