@@ -3,3 +3,5 @@ supabase
 openai
 schema-validator
 postgrest
+jsonschema
+postgrest
