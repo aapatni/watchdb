@@ -1,16 +1,21 @@
 import "./App.css";
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import ReactGA from "react-ga";
 import Sidebar from "./components/Sidebar";
 import { createRoot } from "react-dom/client";
 import { DataProvider } from "./services/SharedDataContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-
+import { initGA, logPageView } from "./services/analytics";
 import theme from "./services/theme";
 
-
 function App() {
+  useEffect(() => {
+    initGA();
+    logPageView();
+  }, []);
   return (
     <DataProvider>
       <ThemeProvider theme={theme}>
