@@ -74,7 +74,7 @@ function Sidebar() {
             position: "relative",
           }}
         >
-          <IconButton
+          {isMobile && <IconButton
             aria-label="close"
             onClick={() => setOpen(false)} // Fixed to call the onClose function correctly
             sx={{
@@ -85,7 +85,7 @@ function Sidebar() {
             }}
           >
             <CloseIcon />
-          </IconButton>
+          </IconButton>}
           <Box>
             <Avatar sx={{ margin: "auto" }}>
               <WatchIcon />

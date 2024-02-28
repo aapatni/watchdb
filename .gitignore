@@ -1,6 +1,8 @@
+**.log
+venv/
 .env
 **/.DS_Store
-
+package/
 
 webtranspose-out/
 **/__pycache__/

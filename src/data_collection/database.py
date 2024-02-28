@@ -10,12 +10,12 @@ load_dotenv()
 
 DATABASE_USERNAME = os.getenv("DB_USER")
 DATABASE_PASSWORD = os.getenv("DB_PASSWORD")
-DATABASE_HOST = os.getenv("DB_HOST_URL")
+DATABASE_HOST_URL = os.getenv("DB_HOST_URL")
 DATABASE_PORT = os.getenv("DB_PORT")
-DATABASE_URL = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/postgres"
+sql_url = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST_URL}:{DATABASE_PORT}/postgres"
 
 
-engine = create_engine(DATABASE_URL, echo=False, future=True, pool_pre_ping=True)
+engine = create_engine(sql_url, echo=False, future=True, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

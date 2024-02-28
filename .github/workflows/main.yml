@@ -18,9 +18,12 @@ jobs:
       run: |
         echo "REDDIT_APP_ID is set: ${{ secrets.REDDIT_APP_ID != '' }}"
         echo "REDDIT_APP_KEY is set: ${{ secrets.REDDIT_APP_KEY != '' }}"
-        echo "SUPABASE_WATCHDB_URL is set: ${{ secrets.SUPABASE_WATCHDB_URL != '' }}"
-        echo "SUPABASE_WATCHDB_SERVICE_ROLE_KEY is set: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY != '' }}"
-    
+        echo "OPENAI_API_CHRONO_KEY is set: ${{ secrets.OPENAI_API_CHRONO_KEY != '' }}"
+        echo "DB_USER is set: ${{ secrets.DB_USER != '' }}"
+        echo "DB_PASSWORD is set: ${{ secrets.DB_PASSWORD != '' }}"
+        echo "DB_HOST_URL is set: ${{ secrets.DB_HOST_URL != '' }}"
+        echo "DB_PORT is set: ${{ secrets.DB_PORT != '' }}"
+        
     - name: setup python
       uses: actions/setup-python@v5
       with:
@@ -35,8 +38,6 @@ jobs:
       env:
         REDDIT_APP_ID: ${{ secrets.REDDIT_APP_ID }}
         REDDIT_APP_KEY: ${{ secrets.REDDIT_APP_KEY }}
-        SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
-        SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_HOST_URL: ${{ secrets.DB_HOST_URL }}
@@ -45,8 +46,6 @@ jobs:
     
     - name: Run the watchdb populator to
       env:
-          SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
-          SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
           OPENAI_API_CHRONO_KEY: ${{ secrets.OPENAI_API_CHRONO_KEY }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}

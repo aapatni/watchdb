@@ -47,6 +47,7 @@ function WatchGrid({ supabase }) {
         console.error("Error fetching watches:", error);
       } else {
         console.log("Fetched watches count:", data.length);
+        data.sort((b,a) => new Date(a.Timestamp) - new Date(b.Timestamp));
         setWatches(data);
         console.log(data);
       }

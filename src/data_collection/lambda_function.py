@@ -1,24 +1,92 @@
 import argparse
 import json
-import logging  # Added logging module
+import logging
 import os
+from datetime import datetime
 
-from crud import create_watch, get_queued_posts, mark_post_as_processed
+import praw
+from crud import (
+    create_queued_post,
+    create_watch,
+    get_queued_posts,
+    mark_post_as_processed,
+)
 from database import SessionLocal
+from dotenv import load_dotenv
 from jsonschema.exceptions import ValidationError
-from models import Watch
+from models import QueuedPost, Watch
 from openai import OpenAI
+from postgrest.exceptions import APIError
 from schema_validator import validate_schema
 
-# Configure logging
 logging.basicConfig(filename="app.log", level=logging.INFO)
+load_dotenv()
+
+
+def reddit_crawler(time_filter, post_limit, comments_limit):
+    # Reddit API Credentials
+    client_id = os.environ.get("REDDIT_APP_ID")
+    client_secret = os.environ.get("REDDIT_APP_KEY")
+
+    logging.info(f"Reddit client_id: {client_id}")
+    logging.info(f"Reddit client_secret: {client_secret}")
+
+    # Initialize PRAW with credentials
+    user_agent = "User-Agent:chrono-codex-server:v1 (by /u/ChronoCrawler)"
+    reddit = praw.Reddit(
+        client_id=client_id, client_secret=client_secret, user_agent=user_agent
+    )
+    logging.info("PRAW Reddit client initialized successfully.")
+
+    subreddit = reddit.subreddit("watchexchange")
+    logging.info(f"Subreddit set to: {subreddit.display_name}")
+
+    # Fetch the top posts from the subreddit
+    top_posts = subreddit.top(time_filter=time_filter, limit=post_limit)
+    logging.info(
+        f"Fetched top posts with time_filter={time_filter} and post_limit={post_limit}"
+    )
+
+    # Push the data collected to Supabase
+    for post in top_posts:
+        post.comments.replace_more(limit=comments_limit)  # Load all comments
+        comments = " | ".join(
+            [
+                f"{comment.author.name}: {comment.body}"
+                for comment in post.comments.list()
+                if comment.author and comment.author.name and comment.body
+            ]
+        )
+        logging.debug(f"Collected comments for post ID: {post.id}")
+
+        post_data = QueuedPost(
+            post_id=post.id,
+            created_at=datetime.utcfromtimestamp(post.created_utc).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            author_id=post.author.name,
+            title=post.title,
+            url=post.url,
+            comments=comments,
+        )
+
+        try:
+            with SessionLocal() as session:
+                create_queued_post(session, post_data)
+            logging.info(f"Data inserted successfully for post ID: {post.id}")
+        except APIError as api_error:
+            logging.error(f"API Error: {api_error}")
+            if api_error.code == "23505":
+                logging.warning(f"Duplicate entry ({post.id}), skipping")
+            else:
+                raise api_error
 
 
 def process_queue(num_requests):
     openai_key = os.environ.get("OPENAI_API_CHRONO_KEY")
     client = OpenAI(api_key=openai_key)
 
-    with open("src/data_collection/query_schema.json") as f:
+    with open("query_schema.json") as f:
         output_schema_str = f.read()
 
     try:
@@ -80,28 +148,22 @@ def process_queue(num_requests):
                 create_watch(session, watch)
                 mark_post_as_processed(session, item.post_id)
         except json.JSONDecodeError as json_err:
-            logging.error(f"Error in parsing the JSON outputted by OpenAI:\n\t {e}")
+            logging.error(
+                f"Error in parsing the JSON outputted by OpenAI:\n\t {json_err}"
+            )
         except ValidationError as e:
             logging.error(
                 f"Schema Validation failed, likely missing some data:\n\tjson:{response_json}\n\terr:{e}"
             )
         except Exception as e:
-            logging.error(f"Unkown Exception: {e}")
+            logging.error(f"Unknown Exception: {e}")
             raise
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Process queue items and format them using OpenAI"
-    )
-    parser.add_argument(
-        "--num_requests",
-        type=int,
-        required=True,
-        default=5,
-        help="Max number of requests to process from the queue",
-    )
+def lambda_handler(event, context):
+    reddit_crawler("hour", 25, 10)
+    process_queue(30)
+    return {"statusCode": 200, "body": json.dumps("Hello from Lambda!")}
 
-    args = parser.parse_args()
 
-    process_queue(args.num_requests)
+lambda_handler(None, None)
