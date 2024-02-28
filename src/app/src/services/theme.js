@@ -10,9 +10,9 @@ const theme = createTheme({
       main: "#8B4513", // SaddleBrown for a touch of the old leather
     },
     background: {
-      default: "#FFF8DC", // Cornsilk background for a light, airy feel
-      paper: "#FAEBD7", // AntiqueWhite for paper elements to add to the vintage theme
-      backMost: "#F5F5DC", // Beige for the furthest back elements, keeping it light and neutral
+      default: "#fbf7ef", // Cornsilk background for a light, airy feel
+      paper: "#eeddbb", // AntiqueWhite for paper elements to add to the vintage theme
+      bar: "#cf915e"
     },
     text: {
       primary: "#000000", // Black text for contrast on the light background

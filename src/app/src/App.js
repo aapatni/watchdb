@@ -1,8 +1,6 @@
 import "./App.css";
 import React from "react";
-import { supabase } from "./services/supabaseClient";
 import Sidebar from "./components/Sidebar";
-import Search from "./components/Search";
 import { createRoot } from "react-dom/client";
 import { DataProvider } from "./services/SharedDataContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";

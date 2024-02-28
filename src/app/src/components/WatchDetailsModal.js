@@ -108,9 +108,9 @@ function WatchDetailsModal({ watch, onClose }) {
               <Typography gutterBottom>
                 <b>Price:</b> ${watch["Price"]}
               </Typography>
-              <Typography gutterBottom>
+              {/* <Typography gutterBottom>
                 <b>Availability:</b> {watch["Availability"]}
-              </Typography>
+              </Typography> */}
               <Typography gutterBottom>
                 <b>Merchant Name:</b> {watch["Merchant_Name"]}
               </Typography>

@@ -58,9 +58,9 @@ function WatchGrid({ supabase }) {
 
   return (
     <Box className="watch-cards-container" sx={{ p: 2 }}>
-      <Grid container spacing={4}>
+      <Grid container spacing={6}>
         {watches.map((watch, index) => (
-          <Grid item xs={12} sm={6} md={4} key={watch.id || index}>
+          <Grid item xs={12} sm={4} md={3} key={watch.id || index}>
             <WatchCard watch={watch} onClick={handleOpenModal} />
           </Grid>
         ))}

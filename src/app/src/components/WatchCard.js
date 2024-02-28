@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, CardMedia, CardContent, Typography, Box, Chip } from "@mui/material";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+} from "@mui/material";
 import watchImage from "../assets/watch.webp";
-import WatchIcon from "@mui/icons-material/Watch";
 
 function WatchCard({ watch, onClick }) {
   return (
@@ -9,36 +15,79 @@ function WatchCard({ watch, onClick }) {
       className="watch-card"
       onClick={() => onClick(watch)}
       sx={{
-        height: "25vh",
         width: "auto",
-        borderRadius: 8,
-        position: "relative"
+        borderRadius: 2,
+        position: "relative",
+        padding: "0px 0px"
       }}
     >
       <CardMedia
         component="img"
-        sx={{ height: "50%", width: "auto", maxWidth: "100%", margin: "auto" }}
+        sx={{
+          height: { xs: "150px", sm: "200px", md: "250px" },
+          width: "100%",
+          maxWidth: "100%",
+          margin: "auto",
+        }}
         image={
           watch["Photo_URL"].includes("i.redd.it")
             ? watch["Photo_URL"]
             : watchImage
         }
-        alt={watch.Model}        
+        alt={watch.Model}
       />
-      <Chip label={`$${watch.Price}`} color="primary" sx={{ position: "absolute", top: 10, left: 10 }} />
-      
-      <CardContent>
-        <Typography gutterBottom variant="h6" component="div" sx={{ fontSize: { xs: 'h7.fontSize', sm: 'h6.fontSize', md: 'h5.fontSize' } }}>
+      <Chip
+        label={`$${watch.Price}`}
+        color="primary"
+        sx={{ position: "absolute", top: "10px", left: "12px", padding: "0px 0px"}}
+      />
+
+      <CardContent
+        sx={{
+          height: { xs: "75px", sm: "100px", md: "125px" },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+        //   justifyContent: "space-",
+          padding: "8px 12px !important"
+        }}
+      >
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            fontSize: {
+              xs: "body2.fontSize",
+              sm: "body1.fontSize",
+              md: "body1.fontSize",
+            },
+            opacity: "40%"
+          }}
+        >
+          Ref: {watch["Reference_Number"]}
+        </Typography>
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="div"
+          sx={{
+            fontSize: {
+              xs: "h7.fontSize",
+              sm: "h6.fontSize",
+              md: "h5.fontSize",
+            },
+            display: "-webkit-box",
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
           {watch.Brand} {watch.Model}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: 'body2.fontSize', sm: 'body1.fontSize', md: 'body1.fontSize' } }}>
-          Reference Number: {watch["Reference_Number"]}
-        </Typography>
+        
       </CardContent>
     </Card>
   );
 }
 
 export default WatchCard;
-
-
