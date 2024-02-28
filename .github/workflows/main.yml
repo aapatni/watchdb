@@ -14,6 +14,13 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v4
   
+    - name: Verify environment variables
+      run: |
+        echo "REDDIT_APP_ID is set: ${{ secrets.REDDIT_APP_ID != '' }}"
+        echo "REDDIT_APP_KEY is set: ${{ secrets.REDDIT_APP_KEY != '' }}"
+        echo "SUPABASE_WATCHDB_URL is set: ${{ secrets.SUPABASE_WATCHDB_URL != '' }}"
+        echo "SUPABASE_WATCHDB_SERVICE_ROLE_KEY is set: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY != '' }}"
+    
     - name: setup python
       uses: actions/setup-python@v5
       with:
@@ -34,8 +41,7 @@ jobs:
     
     - name: Run the watchdb populator to
       env:
-          REDDIT_APP_ID: ${{ secrets.REDDIT_APP_ID }}
-          REDDIT_APP_KEY: ${{ secrets.REDDIT_APP_KEY }}
           SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
           SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
+          OPENAI_API_CHRONO_KEY: ${{ secrets.OPENAI_API_CHRONO_KEY }}
       run: python src/data_collection/watchdb_populator.py --num_requests 25

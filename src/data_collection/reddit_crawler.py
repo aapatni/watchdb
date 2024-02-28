@@ -10,7 +10,6 @@ from crud import create_queued_post
 from database import SessionLocal
 from models import QueuedPost
 from postgrest.exceptions import APIError
-from supabase import Client, create_client
 
 # Configure logging
 logging.basicConfig(
@@ -19,14 +18,6 @@ logging.basicConfig(
 
 
 def main(time_filter, post_limit, comments_limit):
-    # Supabase credentials
-    # url: str = os.environ.get("SUPABASE_WATCHDB_URL")
-    # key: str = os.environ.get("SUPABASE_WATCHDB_SERVICE_ROLE_KEY")
-
-    # Log the Supabase URL and key for debugging purposes
-    # logging.debug(f"Supabase URL: {url}")
-    # logging.debug(f"Supabase Key: {key}")
-
     # Reddit API Credentials
     client_id = os.environ.get("REDDIT_APP_ID")
     client_secret = os.environ.get("REDDIT_APP_KEY")
@@ -34,30 +25,12 @@ def main(time_filter, post_limit, comments_limit):
     logging.info(f"Reddit client_id: {client_id}")
     logging.info(f"Reddit client_secret: {client_secret}")
 
-    # Supabase setup
-    # supabase: Client = create_client(url, key)
-    # logging.info("Supabase client created successfully.")
-
     # Initialize PRAW with credentials
     user_agent = "User-Agent:chrono-codex-server:v1 (by /u/ChronoCrawler)"
     reddit = praw.Reddit(
         client_id=client_id, client_secret=client_secret, user_agent=user_agent
     )
     logging.info("PRAW Reddit client initialized successfully.")
-
-    # test_data = QueuedPost(
-    #     post_id="test123",
-    #     author_id="test_author",
-    #     title="Test Title",
-    #     url="http://test.url",
-    #     comments="Test comment",
-    # )
-
-    # try:
-    #     test_insert_response = supabase.table("rqueue").insert(test_data).execute()
-    #     print(test_insert_response)
-    # except APIError as api_error:
-    #     print(api_error.message)
 
     subreddit = reddit.subreddit("watchexchange")
     logging.info(f"Subreddit set to: {subreddit.display_name}")

@@ -4,4 +4,6 @@ openai
 schema-validator
 postgrest
 jsonschema
-postgrest
+python-dotenv
+sqlalchemy
+psycopg2

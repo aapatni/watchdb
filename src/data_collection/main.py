@@ -1,1 +1,2 @@
-main.py
+def main():
+    populate_watchdb()

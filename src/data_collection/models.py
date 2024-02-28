@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from dotenv import load_dotenv
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, create_engine
@@ -19,14 +20,24 @@ class QueuedPost(Base):
     comments = Column(String, nullable=False)
     processed = Column(Boolean, default=False)
 
+    def get_relevant_data(self):
+        return json.dumps(
+            {
+                "author_id": self.author_id,
+                "title": self.title,
+                "comments": self.comments,
+                "url": self.url,
+            }
+        )
+
 
 class Watch(Base):
     __tablename__ = "watches"
     Brand = Column(String, primary_key=True)
     Reference_Number = Column(String, primary_key=True)
     Timestamp = Column(DateTime, primary_key=True)
+    Model = Column(String, primary_key=True, nullable=False)
 
-    Model = Column(String, primary_key=False)
     Case_Material = Column(String, nullable=True)
     Case_Diameter = Column(Float, nullable=True)
     Case_Thickness = Column(Float, nullable=True)

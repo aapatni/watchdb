@@ -1,2 +1,6 @@
+.env
+**/.DS_Store
+
+
 webtranspose-out/
 **/__pycache__/
