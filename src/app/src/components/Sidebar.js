@@ -13,6 +13,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 
 import Avatar from "@mui/material/Avatar";
+import watchImage from "../assets/watch.webp";
 
 import WatchIcon from "@mui/icons-material/Watch";
 import Search from "./Search";

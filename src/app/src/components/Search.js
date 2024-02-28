@@ -4,59 +4,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  InputAdornment,
   Box,
   Input,
   Autocomplete,
   TextField
 } from "@mui/material";
 import { SharedDataContext } from "../services/SharedDataContext";
-
-// function BrandDropdown({ supabase }) {
-//   const { filterBrand, setFilterBrand } = useContext(SharedDataContext);
-//   const [brands, setBrands] = useState([]);
-
-//   useEffect(() => {
-//     async function fetchBrands() {
-//       let { data, error } = await supabase.rpc("get_unique_brands");
-
-//       if (error) {
-//         console.error("error", error);
-//       } else {
-//         setBrands(data.map((item) => item.brand));
-//       }
-//     }
-
-//     fetchBrands();
-//   }, [supabase]);
-
-//   const handleChange = (event) => {
-//     setFilterBrand(event.target.value || null);
-//   };
-
-//   return (
-//     <Box sx={{ minWidth: 120 }}>
-//       <FormControl fullWidth>
-//         <InputLabel id="brand-dropdown-label">Brand</InputLabel>
-//         <Select
-//           labelId="brand-dropdown-label"
-//           id="brand-dropdown"
-//           value={filterBrand || ""}
-//           label="Brand"
-//           onChange={handleChange}
-//         >
-//           <MenuItem value="">
-//             <em>None</em>
-//           </MenuItem>
-//           {brands.map((brand) => (
-//             <MenuItem key={brand} value={brand}>
-//               {brand}
-//             </MenuItem>
-//           ))}
-//         </Select>
-//       </FormControl>
-//     </Box>
-//   );
-// }
 
 function BrandDropdown({ supabase }) {
     const { filterBrand, setFilterBrand } = useContext(SharedDataContext);
@@ -97,7 +51,8 @@ function BrandDropdown({ supabase }) {
       </Box>
     );
   }
-function SizeFilter({ supabase }) {
+
+function SizeFilter({ }) {
   const { setFilterMinDiameter, setFilterMaxDiameter } =
     useContext(SharedDataContext);
 
@@ -160,7 +115,7 @@ function SizeFilter({ supabase }) {
   );
 }
 
-function SearchBar({ setSearchTerm }) {
+function SearchBar({ }) {
   const { setFilterSearchTerm } = useContext(SharedDataContext);
   return (
     <Box sx={{ minWidth: 120, mt: 2 }}>
@@ -176,12 +131,52 @@ function SearchBar({ setSearchTerm }) {
   );
 }
 
+function PriceFilter( ) {
+    const {
+      filterMinPrice,
+      setFilterMinPrice,
+      filterMaxPrice,
+      setFilterMaxPrice,
+    } = useContext(SharedDataContext);
+    const [isInvalid, setIsInvalid] = useState(false);
+  useEffect(() => {
+    setIsInvalid(filterMinPrice < 0 || filterMinPrice > filterMaxPrice);
+    console.log(filterMinPrice, filterMaxPrice);
+  }, [filterMinPrice, filterMaxPrice]);
+  return (
+    <Box sx={{ display: "flex", gap: 2 }}>
+      <FormControl fullWidth error={isInvalid}>
+        <InputLabel htmlFor="min-price">Min Price</InputLabel>
+        <Input
+          id="min-price"
+          type="number"
+          value={filterMinPrice ? parseFloat(filterMinPrice) : ""}
+          onChange={(event) => setFilterMinPrice(event.target.value ? parseFloat(event.target.value) : null)}
+          startAdornment={<InputAdornment position="start">$</InputAdornment>}
+        />
+      </FormControl>
+      <FormControl fullWidth error={isInvalid}>
+        <InputLabel htmlFor="max-price">Max Price</InputLabel>
+        <Input
+          id="max-price"
+          type="number"
+          value={filterMaxPrice ? parseFloat(filterMaxPrice) : ""}
+          onChange={(event) => setFilterMaxPrice(event.target.value ? parseFloat(event.target.value) : null)}
+          startAdornment={<InputAdornment position="start">$</InputAdornment>}
+        />
+      </FormControl>
+    </Box>
+  );
+}
+
+
 function Search({ supabase }) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, padding: 2 }}>
-      <SearchBar supabase={supabase} />
+      <SearchBar />
       <BrandDropdown supabase={supabase} />
-      <SizeFilter supabase={supabase} />
+      <SizeFilter />
+      <PriceFilter />
     </Box>
   );
 }
