@@ -48,6 +48,7 @@ def main(time_filter, post_limit, comments_limit):
             [
                 f"{comment.author.name}: {comment.body}"
                 for comment in post.comments.list()
+                if comment.author and comment.author.name and comment.body
             ]
         )
         logging.debug(f"Collected comments for post ID: {post.id}")

@@ -111,7 +111,7 @@ function Sidebar() {
               <input
                 type="hidden"
                 name="item_name"
-                value="Thanks for supporting WatchDB! I use this to pay for server costs. Glad you were able to save some money or find a cool watch."
+                value="Thanks for supporting Chrono Codex! I use this to pay for server costs. Glad you were able to save some money or find a cool watch."
               />
               <input type="hidden" name="currency_code" value="USD" />
               <input
