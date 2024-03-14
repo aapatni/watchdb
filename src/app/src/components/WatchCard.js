@@ -1,15 +1,27 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import {
   Card,
   CardMedia,
   CardContent,
   Typography,
-  Box,
   Chip,
 } from "@mui/material";
 import watchImage from "../assets/watch.webp";
 
 function WatchCard({ watch, onClick }) {
+  const getImageUrl = () => {
+    if (!watch["Photo_URL"] || watch["Photo_URL"] === "") {
+      return watchImage; // Default image when Photo_URL is null or empty
+    }
+    if (watch["Photo_URL"].includes("i.redd.it")) {
+      return watch["Photo_URL"];
+    } else if (watch["Photo_URL"].includes("preview.redd.it")) {
+      return watch["Photo_URL"];
+    } else {
+      return watchImage;
+    }
+  };
+
   return (
     <Card
       className="watch-card"
@@ -29,11 +41,7 @@ function WatchCard({ watch, onClick }) {
           maxWidth: "100%",
           margin: "auto",
         }}
-        image={
-          watch["Photo_URL"].includes("i.redd.it")
-            ? watch["Photo_URL"]
-            : watchImage
-        }
+        image={getImageUrl()}
         alt={watch.Model}
       />
       <Chip
@@ -48,7 +56,6 @@ function WatchCard({ watch, onClick }) {
           display: "flex",
           flexDirection: "column",
           alignItems: "start",
-        //   justifyContent: "space-",
           padding: "8px 12px !important"
         }}
       >

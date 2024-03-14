@@ -9,14 +9,11 @@ function WatchGrid({ supabase }) {
   const [selectedWatch, setSelectedWatch] = useState(null);
 
   const handleOpenModal = useCallback((watch) => {
-    console.log("opening shit")
     setModalOpen(true);
     setSelectedWatch(watch);
   }, []);
 
   const handleCloseModal = useCallback(() => {
-    console.log("closing shit")
-
     setModalOpen(false);
     setSelectedWatch(null);
   }, []);
@@ -34,7 +31,6 @@ function WatchGrid({ supabase }) {
 
   useEffect(() => {
     const fetchWatchesToRender = async () => {
-      console.log("entered fetch");
       let { data, error } = await supabase.rpc("get_filtered_watches", {
         p_brand: filterBrand,
         p_min_diameter: filterMinDiameter,

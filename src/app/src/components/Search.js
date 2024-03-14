@@ -141,7 +141,6 @@ function PriceFilter( ) {
     const [isInvalid, setIsInvalid] = useState(false);
   useEffect(() => {
     setIsInvalid(filterMinPrice < 0 || filterMinPrice > filterMaxPrice);
-    console.log(filterMinPrice, filterMaxPrice);
   }, [filterMinPrice, filterMaxPrice]);
   return (
     <Box sx={{ display: "flex", gap: 2 }}>
