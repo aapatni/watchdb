@@ -2,25 +2,26 @@ import argparse
 import json
 import logging
 import os
-import time
 from datetime import datetime
+from dotenv import load_dotenv
 
 import praw
-from crud import create_queued_post
-from database import SessionLocal
-from models import QueuedPost
-from postgrest.exceptions import APIError
+from supabase import create_client, Client
 
+load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
 def main(time_filter, post_limit, comments_limit):
     # Reddit API Credentials
     client_id = os.environ.get("REDDIT_APP_ID")
     client_secret = os.environ.get("REDDIT_APP_KEY")
+
+    # Supabase Credentials
+    supabase_url = os.environ.get("SUPABASE_WATCHDB_URL")
+    supabase_key = os.environ.get("SUPABASE_WATCHDB_SERVICE_ROLE_KEY")
 
     logging.info(f"Reddit client_id: {client_id}")
     logging.info(f"Reddit client_secret: {client_secret}")
@@ -31,6 +32,10 @@ def main(time_filter, post_limit, comments_limit):
         client_id=client_id, client_secret=client_secret, user_agent=user_agent
     )
     logging.info("PRAW Reddit client initialized successfully.")
+
+    # Initialize Supabase client
+    supabase: Client = create_client(supabase_url, supabase_key)
+    logging.info("Supabase client initialized successfully.")
 
     subreddit = reddit.subreddit("watchexchange")
     logging.info(f"Subreddit set to: {subreddit.display_name}")
@@ -53,28 +58,28 @@ def main(time_filter, post_limit, comments_limit):
         )
         logging.debug(f"Collected comments for post ID: {post.id}")
 
-        post_data = QueuedPost(
-            post_id=post.id,
-            created_at=datetime.utcfromtimestamp(post.created_utc).strftime(
-                "%Y-%m-%d %H:%M:%S"
-            ),
-            author_id=post.author.name,
-            title=post.title,
-            url=post.url,
-            comments=comments,
-        )
+        post_data = {
+            "post_id": post.id,
+            "created_at": datetime.utcfromtimestamp(post.created_utc).strftime("%Y-%m-%d %H:%M:%S"),
+            "author_id": post.author.name,
+            "title": post.title,
+            "url": post.url,
+            "comments": comments,
+            "processed": False
+        }
 
         try:
-            with SessionLocal() as session:
-                create_queued_post(session, post_data)
+            data, error = supabase.table("queued_posts").insert(post_data).execute()
             logging.info(f"Data inserted successfully for post ID: {post.id}")
-        except APIError as api_error:
-            logging.error(f"API Error: {api_error}")
-            if api_error.code == "23505":
-                logging.warning(f"Duplicate entry ({post.id}), skipping")
+        except Exception as e:
+            if hasattr(e, 'args') and len(e.args) > 0:
+                error_message = e.args[0]
+                if '23505' in error_message:  # Check if the error message contains the unique constraint violation code
+                    logging.warning(f"Duplicate entry for post ID: {post.id}, skipping.")
+                else:
+                    logging.error(f"Error inserting data: {error_message}")
             else:
-                raise api_error
-
+                logging.error(f"Error inserting data with unknown format: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reddit WatchExchange Crawler")
