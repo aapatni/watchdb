@@ -14,6 +14,7 @@ DATABASE_HOST_URL = os.getenv("DB_HOST_URL")
 DATABASE_PORT = os.getenv("DB_PORT")
 sql_url = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST_URL}:{DATABASE_PORT}/postgres"
 
+print("THIS IS THE URL: ", sql_url)
 
 engine = create_engine(sql_url, echo=False, future=True, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
