@@ -1,18 +1,22 @@
 import argparse
 import json
-import logging  # Added logging module
+import logging
 import os
-
-from crud import create_watch, get_queued_posts, mark_post_as_processed
-from database import SessionLocal
+from supabase import create_client, Client
 from jsonschema.exceptions import ValidationError
-from models import Watch
-from openai import OpenAI
+from dotenv import load_dotenv
 from schema_validator import validate_schema
+from openai import OpenAI
+from postgrest.exceptions import APIError
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(filename="app.log", level=logging.INFO)
 
+# Initialize Supabase client
+url: str = os.environ.get("SUPABASE_WATCHDB_URL")
+key: str = os.environ.get("SUPABASE_WATCHDB_SERVICE_ROLE_KEY")
+supabase: Client = create_client(url, key)
 
 def process_queue(num_requests):
     openai_key = os.environ.get("OPENAI_API_CHRONO_KEY")
@@ -22,16 +26,26 @@ def process_queue(num_requests):
         output_schema_str = f.read()
 
     try:
-        with SessionLocal() as session:
-            queue_data = get_queued_posts(session, num_requests)
+        queue_data = supabase.table("queued_posts").select("*").eq("processed", False).limit(num_requests).execute()
+
+        # if queue_data.error:
+        #     raise Exception(queue_data.error.message)
+        queue_data = queue_data.data
 
     except Exception as e:
-        logging.error(f"Failed to fetch data from Supabase (rqueue): {str(e)}")
+        logging.error(f"Failed to fetch data from Supabase: {str(e)}")
         return
 
     for item in queue_data:
         try:
-            relevant_data = item.get_relevant_data()
+            relevant_data = json.dumps(
+                {
+                    "author_id": item['author_id'],
+                    "title": item['title'],
+                    "comments": item['comments'],
+                    "url": item['url'],
+                }
+            )  
             prompt = f"Given the data: {relevant_data}, construct a JSON object that adheres to the specified output schema. Output schema: {output_schema_str}"
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo-0125",
@@ -39,7 +53,7 @@ def process_queue(num_requests):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a helpful assistant that outputs valid JSON.>",
+                        "content": "You are a helpful assistant that outputs valid JSON.",
                     },
                     {"role": "user", "content": prompt},
                 ],
@@ -47,48 +61,33 @@ def process_queue(num_requests):
             response_json = json.loads(response.choices[0].message.content)
             logging.info(f"Response JSON: {response_json}")
             validated_response = validate_schema(response_json)
-            watch = Watch(
-                Brand=validated_response.get("Brand", "Unknown"),
-                Reference_Number=validated_response.get("Reference Number", "None"),
-                Timestamp=item.created_at,
-                Model=validated_response.get("Model", None),
-                Case_Material=validated_response.get("Case Material", None),
-                Case_Diameter=validated_response.get("Case Diameter", None),
-                Case_Thickness=validated_response.get("Case Thickness", None),
-                Lug_Width=validated_response.get("Lug Width", None),
-                Lug_to_Lug=validated_response.get("Lug-to-Lug", None),
-                Dial_Color=validated_response.get("Dial Color", None),
-                Crystal_Type=validated_response.get("Crystal Type", None),
-                Water_Resistance=validated_response.get("Water Resistance", None),
-                Movement=validated_response.get("Movement", None),
-                Caliber=validated_response.get("Caliber", None),
-                Movement_Type=validated_response.get("Movement Type", None),
-                Power_Reserve=validated_response.get("Power Reserve", None),
-                Bracelet_Strap_Material=validated_response.get(
-                    "Bracelet/Strap Material", None
-                ),
-                Clasp_Type=validated_response.get("Clasp Type", None),
-                Product_Weight=validated_response.get("Product Weight", None),
-                Features=validated_response.get("Features", None),
-                Price=validated_response.get("Price", None),
-                Availability=validated_response.get("Availability", None),
-                Photo_URL=validated_response.get("Photo URL", None),
-                Merchant_Name=validated_response.get("Merchant Name", None),
-                Product_URL=validated_response.get("Product URL", None),
-            )
-            with SessionLocal() as session:
-                create_watch(session, watch)
-                mark_post_as_processed(session, item.post_id)
+            # print("validated response: ", validated_response, type(validated_response))
+            validated_response['Timestamp']=item['created_at']
+            # validated_response['processed'] = True  # Mark as processed
+            # validated_response['post_id'] = item['id']  # Assuming 'id' is the correct field
+
+            # Insert or update the watch data in Supabase
+            response = supabase.table("watches").insert(validated_response).execute()
+
+            # Mark the original post as processed
+            response = supabase.table("queued_posts").update({"processed": True}).eq("post_id", item['post_id']).execute()
+
+
         except json.JSONDecodeError as json_err:
-            logging.error(f"Error in parsing the JSON outputted by OpenAI:\n\t {e}")
+            logging.error(f"Error in parsing the JSON outputted by OpenAI:\n\t {json_err}")
         except ValidationError as e:
             logging.error(
                 f"Schema Validation failed, likely missing some data:\n\tjson:{response_json}\n\terr:{e}"
             )
+        except APIError as api_err:
+            if api_err.code == '23505':
+                response = supabase.table("queued_posts").update({"processed": True}).eq("post_id", item['post_id']).execute()
+                print("Duplicate entry, skipping.")
+            else:
+                print("API Error: ", api_err)
         except Exception as e:
-            logging.error(f"Unkown Exception: {e}")
+            logging.error(f"Unknown Exception: {e}")
             raise
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

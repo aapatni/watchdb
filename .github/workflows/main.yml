@@ -53,4 +53,6 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST_URL: ${{ secrets.DB_HOST_URL }}
           DB_PORT: ${{ secrets.DB_PORT }}
+          SUPABASE_WATCHDB_URL: ${{ secrets.SUPABASE_WATCHDB_URL }}
+          SUPABASE_WATCHDB_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_WATCHDB_SERVICE_ROLE_KEY }}
       run: python src/data_collection/watchdb_populator.py --num_requests 25

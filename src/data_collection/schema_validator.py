@@ -12,20 +12,33 @@ def filter_invalid_entries(data, schema):
     :return: A new dictionary with only the valid entries according to the schema.
     """
     valid_data = {}
+    for key in schema.get("properties", {}).keys():
+        required = schema.get("properties", {}).get(key, {}).get("required", False)
+        if required:
+            valid_data[key] = ""
+
     for key, value in data.items():
         expected_type = schema.get("properties", {}).get(key, {}).get("type", None)
         if expected_type:
-            if expected_type == "number" and value is not None:
-                try:
-                    converted_value = int(value)
-                except ValueError:
-                    try:
-                        converted_value = float(value)
-                    except ValueError:
+            try:
+                if expected_type == "number":
+                    if value == None:
                         continue
-                valid_data[key] = converted_value
-            elif expected_type == "string" and isinstance(value, str):
-                valid_data[key] = value
+                    valid_data[key] = float(value) if '.' in str(value) else int(value)
+                elif expected_type == "string":
+                    if value == None:
+                        continue
+                    valid_data[key] = str(value)
+                else:
+                    raise ValueError(f"Unsupported type {expected_type} for key {key}")
+            except (ValueError, TypeError):
+                print(f"Error converting {key} with value {value} to {expected_type}, skipping...")
+                continue
+    required_fields_empty = all(valid_data[key] in [None, ""] for key in valid_data if schema.get("properties", {}).get(key, {}).get("required", True))
+    if required_fields_empty:
+        print("reqfieldemp", json.dumps(valid_data, indent=4))
+
+        raise ValueError("All required fields are either None or empty string.")
     return valid_data
 
 
@@ -38,10 +51,12 @@ def validate_schema(data: dict):
     # Load the schema
     with open('src/data_collection/watch_schema.json', 'r') as file:
         schema = json.load(file)
-
+    
+    # print("BEFORE FILTERING", json.dumps(data, indent=4))
     json_data = filter_invalid_entries(data, schema)
+    # print("AFTER FILTERING", json.dumps(json_data, indent=4))
+
 
     # Validate the JSON, on failure throw exception
     validate(instance=json_data, schema=schema)
     return json_data  
-    
