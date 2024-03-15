@@ -3,16 +3,17 @@ import json
 import logging
 import os
 from datetime import datetime
-from dotenv import load_dotenv
 
 import praw
-from supabase import create_client, Client
+from dotenv import load_dotenv
+from supabase import Client, create_client
 
 load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
 
 def main(time_filter, post_limit, comments_limit):
     # Reddit API Credentials
@@ -48,38 +49,65 @@ def main(time_filter, post_limit, comments_limit):
 
     # Push the data collected to Supabase
     for post in top_posts:
-        post.comments.replace_more(limit=comments_limit)  # Load all comments
-        comments = " | ".join(
-            [
-                f"{comment.author.name}: {comment.body}"
-                for comment in post.comments.list()
-                if comment.author and comment.author.name and comment.body
-            ]
-        )
-        logging.debug(f"Collected comments for post ID: {post.id}")
+        comments = ""
+        post.comment_sort = "top"
+        post.comments.replace_more(limit=0)
+        for comment in post.comments.list():
+            if comment.author and comment.author.name == post.author.name:
+                comments += f"{comment.author.name}: {comment.body}"
+                break
+
+        post.comments.replace_more(limit=comments_limit)
+
+        max_iter = min(len(post.comments), comments_limit)
+        for i in range(max_iter):
+            if (
+                post.comments[i].author
+                and post.comments[i].author.name
+                and post.comments[i].body
+            ):
+                comments += (
+                    f" | {post.comments[i].author.name}: {post.comments[i].body}"
+                )
+        # comments = " | ".join(
+        #     [
+        #         f"{comment.author.name}: {comment.body}"
+        #         for comment in post.comments.list()
+        #         if comment.author and comment.author.name and comment.body
+        #     ]
+        # )
+        logging.info(f"Collected comments for post ID: {post.id}")
+        logging.info(f"comments: {len(comments)}{comments}")
 
         post_data = {
             "post_id": post.id,
-            "created_at": datetime.utcfromtimestamp(post.created_utc).strftime("%Y-%m-%d %H:%M:%S"),
+            "created_at": datetime.utcfromtimestamp(post.created_utc).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
             "author_id": post.author.name,
             "title": post.title,
             "url": post.url,
             "comments": comments,
-            "processed": False
+            "processed": False,
         }
 
         try:
             data, error = supabase.table("queued_posts").insert(post_data).execute()
             logging.info(f"Data inserted successfully for post ID: {post.id}")
         except Exception as e:
-            if hasattr(e, 'args') and len(e.args) > 0:
+            if hasattr(e, "args") and len(e.args) > 0:
                 error_message = e.args[0]
-                if '23505' in error_message:  # Check if the error message contains the unique constraint violation code
-                    logging.warning(f"Duplicate entry for post ID: {post.id}, skipping.")
+                if (
+                    "23505" in error_message
+                ):  # Check if the error message contains the unique constraint violation code
+                    logging.warning(
+                        f"Duplicate entry for post ID: {post.id}, skipping."
+                    )
                 else:
                     logging.error(f"Error inserting data: {error_message}")
             else:
                 logging.error(f"Error inserting data with unknown format: {e}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reddit WatchExchange Crawler")
